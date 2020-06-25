@@ -1,3 +1,6 @@
+
+//데이터베이스에서 정보를 읽어와아 하기 떄문에 database.json 파일에 접근할 수 있는 라이브러리 불러오는 변수
+const fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
@@ -6,37 +9,29 @@ const port = process.env.PORT || 5000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
-app.get('/api/customers', (req,res) => {
-    res.send([
-        {
-            'id':1,
-            'image': 'https://placeimg.com/64/64/1',
-            'name': '홍길동',
-            'birthday': '962122',
-            'gender': '남자',
-            'job': '대학생'
-        },
-        {
-            'id':2,
-            'image': 'https://placeimg.com/64/64/2',
-            'name': '이순신',
-            'birthday': '921219',
-            'gender': '여자',
-            'job': '암살자'
-        },
-        {
-            'id':3,
-            'image': 'https://placeimg.com/64/64/3',
-            'name': '이재용',
-            'birthday': '860123',
-            'gender': '남자',
-            'job': '기업인'
-        }
-    ]);
-});
+//파일 읽어오는 변수
+const data = fs.readFileSync('./database.json');
+//데이터 파싱해서 들고옴
+const conf = JSON.parse(data);
+const mysql = require('mysql');
 
-app.get('/api/hello', (req, res) => {
-    res.send({message: "Hello Express!"});
+//연결과 관련된 변수 설정
+const connection = mysql.createConnection({
+    host: conf.host,
+    user: conf.user,
+    password: conf.password,
+    port: conf.port,
+    database: conf.database
+});
+connection.connect();
+
+app.get('/api/customers', (req,res) => {
+    connection.query(
+      "SELECT * FROM CUSTOMER",
+        (err, rows, fields) =>{
+          res.send(rows);
+        }
+    );
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
