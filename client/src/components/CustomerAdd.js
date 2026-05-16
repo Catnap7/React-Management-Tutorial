@@ -1,5 +1,5 @@
 import React from 'react';
-import {post} from 'axios';
+import axios from 'axios';
 
 class CustomerAdd extends React.Component{
     constructor(props) {
@@ -60,7 +60,7 @@ class CustomerAdd extends React.Component{
                 'content-type' : 'multipart/form-data'
             }
         }
-        return post(url, formData, config);
+        return axios.post(url, formData, config);
     }
 
     render() {
